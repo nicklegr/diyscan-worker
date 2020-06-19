@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  main:
+    build: .
+    ports:
+     - "80:80"
+    restart: unless-stopped
+    command: python3 main.py
+    # command: tesseract -v
+    networks:
+      - default
+      - nginx-proxy
+    volumes:
+      - /c/work/acnh-recipe-ocr/test:/test
+      - /c/work/acnh-recipe-ocr/mov:/mov
+
+networks:
+  nginx-proxy:
+    external: true
