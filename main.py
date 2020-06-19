@@ -23,17 +23,68 @@ balloon_center = (top_left[0] - 21, top_left[1] - 95)
 balloon_top_left = (balloon_center[0] - 220, balloon_center[1] - 25)
 balloon_bottom_right = (balloon_center[0] + 220, balloon_center[1] + 30)
 
-cv2.rectangle(target_debug, balloon_top_left, balloon_bottom_right, (0,0,255), 2)
+# cv2.rectangle(target_debug, balloon_top_left, balloon_bottom_right, (0,0,255), 2)
 
-cv2.imwrite('/test/result.png', target_debug)
+# cv2.imwrite('/test/result.png', target_debug)
+
+# 色でふきだしを抽出
+target_hsv = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
+
+balloon_color_bgr = np.uint8([[[173,189,78]]])
+balloon_color_hsv = cv2.cvtColor(balloon_color_bgr, cv2.COLOR_BGR2HSV)[0][0]
+balloon_color_lower = np.array([86-10,50,50])
+balloon_color_upper = np.array([86+10,255,255])
+
+target_mask = cv2.inRange(target_hsv, balloon_color_lower, balloon_color_upper)
+cv2.imwrite("/test/target_mask.png", target_mask)
+
+# ふきだしの輪郭抽出
+contours, hierarchy = cv2.findContours(target_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # RETR_TREE
+biggest_contour = max(contours, key=lambda x:cv2.contourArea(x))
+
+# target_contours = cv2.drawContours(target, [biggest_contour], 0, (0,255,0), cv2.FILLED)
+# cv2.imwrite("/test/target_contours.png", target_contours)
+
+# 輪郭内を塗りつぶし
+_, target_w, target_h = target.shape[::-1]
+baloon_mask = np.zeros((target_h, target_w, 1), np.uint8)
+baloon_mask = cv2.drawContours(baloon_mask, [biggest_contour], 0, 255, cv2.FILLED)
+cv2.imwrite("/test/baloon_mask.png", baloon_mask)
+
+# 元画像にマスクかけてふきだし部分を抽出
+baloon_only = cv2.bitwise_and(target, target, mask=baloon_mask)
+cv2.imwrite("/test/baloon_only.png", baloon_only)
+
+# ふきだしの外を似たような色で塗りつぶす
+fill_mask = cv2.copyMakeBorder(baloon_mask, 1, 1, 1, 1, cv2.BORDER_REPLICATE)
+_, filled, _, _ = cv2.floodFill(baloon_only, fill_mask, seedPoint=(0,0), newVal=(173,189,78))
+
+cv2.imwrite("/test/filled.png", filled)
+
+# グレースケール
+gray = cv2.cvtColor(filled, cv2.COLOR_BGR2GRAY)
+cv2.imwrite("/test/gray.png", gray)
+
+# ブラー
+blur = cv2.GaussianBlur(gray, (5,5), 0)
+cv2.imwrite("/test/blur.png", blur)
+
+# 二値化
+_, thres = cv2.threshold(blur,200,255,cv2.THRESH_BINARY)
+cv2.imwrite("/test/thres.png", thres)
+
+# bg_image = np.full((target_h, target_w, 3), balloon_color_bgr[0][0], np.uint8)
+# cv2.imwrite("/test/bg_image.png", bg_image)
+# final = cv2.bitwise_or(baloon_only, bg_image)
+# cv2.imwrite("/test/final.png", final)
 
 # OCR
-balloon_top_left = (balloon_top_left[0] + 50, balloon_top_left[1] + 10)
-balloon_bottom_right = (balloon_bottom_right[0] - 50, balloon_bottom_right[1])
-cropped_balloon = target[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
+balloon_top_left = (balloon_top_left[0], balloon_top_left[1])
+balloon_bottom_right = (balloon_bottom_right[0], balloon_bottom_right[1])
+cropped_balloon = thres[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
 cv2.imwrite('/test/cropped_balloon.png', cropped_balloon)
 
-api = PyTessBaseAPI(psm=8, lang='jpn') # PSM.AUTO
+api = PyTessBaseAPI(psm=PSM.AUTO, lang='jpn')
 api.SetImageFile('/test/cropped_balloon.png')
 
 print(api.GetUTF8Text())
