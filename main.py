@@ -17,16 +17,6 @@ bottom_right = (top_left[0] + w, top_left[1] + h)
 
 cv2.rectangle(target_debug, top_left, bottom_right, (255,0,0), 2)
 
-# ふきだしの範囲を推定
-# 長い名前のレシピの例: 「キュートなチューリップのリース」
-balloon_center = (top_left[0] - 21, top_left[1] - 95)
-balloon_top_left = (balloon_center[0] - 220, balloon_center[1] - 25)
-balloon_bottom_right = (balloon_center[0] + 220, balloon_center[1] + 30)
-
-# cv2.rectangle(target_debug, balloon_top_left, balloon_bottom_right, (0,0,255), 2)
-
-# cv2.imwrite('/test/result.png', target_debug)
-
 # 色でふきだしを抽出
 target_hsv = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
 
@@ -41,6 +31,12 @@ cv2.imwrite("/test/target_mask.png", target_mask)
 # ふきだしの輪郭抽出
 contours, hierarchy = cv2.findContours(target_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # RETR_TREE
 biggest_contour = max(contours, key=lambda x:cv2.contourArea(x))
+
+# ふきだしを切り出す範囲
+# 長い名前のレシピの例: 「キュートなチューリップのリース」
+x,y,w,h = cv2.boundingRect(biggest_contour)
+balloon_top_left = (x, y)
+balloon_bottom_right = (x + w, y + h)
 
 # target_contours = cv2.drawContours(target, [biggest_contour], 0, (0,255,0), cv2.FILLED)
 # cv2.imwrite("/test/target_contours.png", target_contours)
@@ -79,8 +75,6 @@ cv2.imwrite("/test/thres.png", thres)
 # cv2.imwrite("/test/final.png", final)
 
 # OCR
-balloon_top_left = (balloon_top_left[0], balloon_top_left[1])
-balloon_bottom_right = (balloon_bottom_right[0], balloon_bottom_right[1])
 cropped_balloon = thres[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
 cv2.imwrite('/test/cropped_balloon.png', cropped_balloon)
 
