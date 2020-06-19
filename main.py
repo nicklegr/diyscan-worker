@@ -53,14 +53,8 @@ balloon_bottom_right = (x + w, y + h)
 cropped_balloon = baloon_only[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
 cv2.imwrite('/test/cropped_balloon.png', cropped_balloon)
 
-# ふきだしの外を似たような色で塗りつぶす
-_, w, h = cropped_balloon.shape[::-1]
-fill_mask = np.zeros((h+2,w+2), np.uint8)
-_, filled, _, _ = cv2.floodFill(cropped_balloon, fill_mask, seedPoint=(0,0), newVal=(173,189,78))
-cv2.imwrite("/test/filled.png", filled)
-
 # グレースケール
-gray = cv2.cvtColor(filled, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(cropped_balloon, cv2.COLOR_BGR2GRAY)
 cv2.imwrite("/test/gray.png", gray)
 
 # ブラー
