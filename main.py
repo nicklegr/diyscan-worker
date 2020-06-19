@@ -32,12 +32,6 @@ cv2.imwrite("/test/target_mask.png", target_mask)
 contours, hierarchy = cv2.findContours(target_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # RETR_TREE
 biggest_contour = max(contours, key=lambda x:cv2.contourArea(x))
 
-# ふきだしを切り出す範囲
-# 長い名前のレシピの例: 「キュートなチューリップのリース」
-x,y,w,h = cv2.boundingRect(biggest_contour)
-balloon_top_left = (x, y)
-balloon_bottom_right = (x + w, y + h)
-
 # target_contours = cv2.drawContours(target, [biggest_contour], 0, (0,255,0), cv2.FILLED)
 # cv2.imwrite("/test/target_contours.png", target_contours)
 
@@ -51,10 +45,18 @@ cv2.imwrite("/test/baloon_mask.png", baloon_mask)
 baloon_only = cv2.bitwise_and(target, target, mask=baloon_mask)
 cv2.imwrite("/test/baloon_only.png", baloon_only)
 
-# ふきだしの外を似たような色で塗りつぶす
-fill_mask = cv2.copyMakeBorder(baloon_mask, 1, 1, 1, 1, cv2.BORDER_REPLICATE)
-_, filled, _, _ = cv2.floodFill(baloon_only, fill_mask, seedPoint=(0,0), newVal=(173,189,78))
+# ふきだし周辺を切り出し
+# 長い名前のレシピの例: 「キュートなチューリップのリース」
+x,y,w,h = cv2.boundingRect(biggest_contour)
+balloon_top_left = (x, y)
+balloon_bottom_right = (x + w, y + h)
+cropped_balloon = baloon_only[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
+cv2.imwrite('/test/cropped_balloon.png', cropped_balloon)
 
+# ふきだしの外を似たような色で塗りつぶす
+_, w, h = cropped_balloon.shape[::-1]
+fill_mask = np.zeros((h+2,w+2), np.uint8)
+_, filled, _, _ = cv2.floodFill(cropped_balloon, fill_mask, seedPoint=(0,0), newVal=(173,189,78))
 cv2.imwrite("/test/filled.png", filled)
 
 # グレースケール
@@ -69,16 +71,8 @@ cv2.imwrite("/test/blur.png", blur)
 _, thres = cv2.threshold(blur,200,255,cv2.THRESH_BINARY)
 cv2.imwrite("/test/thres.png", thres)
 
-# bg_image = np.full((target_h, target_w, 3), balloon_color_bgr[0][0], np.uint8)
-# cv2.imwrite("/test/bg_image.png", bg_image)
-# final = cv2.bitwise_or(baloon_only, bg_image)
-# cv2.imwrite("/test/final.png", final)
-
 # OCR
-cropped_balloon = thres[balloon_top_left[1]:balloon_bottom_right[1], balloon_top_left[0]:balloon_bottom_right[0]].copy()
-cv2.imwrite('/test/cropped_balloon.png', cropped_balloon)
-
 api = PyTessBaseAPI(psm=PSM.AUTO, lang='jpn')
-api.SetImageFile('/test/cropped_balloon.png')
+api.SetImageFile('/test/thres.png')
 
 print(api.GetUTF8Text())
