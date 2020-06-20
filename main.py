@@ -18,11 +18,12 @@ while(cap.isOpened()):
   _, w, h = template.shape[::-1]
 
   # 指カーソルの位置を検出
-  res = cv2.matchTemplate(target, template, cv2.TM_CCORR_NORMED, mask)
+  # res = cv2.matchTemplate(target, template, cv2.TM_CCORR_NORMED, mask)
 
-  min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-  top_left = max_loc
-  bottom_right = (top_left[0] + w, top_left[1] + h)
+  # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+  # top_left = max_loc
+  # bottom_right = (top_left[0] + w, top_left[1] + h)
+  # print(f"{max_val}, {max_loc}")
 
   # cv2.rectangle(target_debug, top_left, bottom_right, (255,0,0), 2)
 
