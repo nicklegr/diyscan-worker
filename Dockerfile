@@ -4,18 +4,16 @@ ENV TZ Asia/Tokyo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-    tesseract-ocr libtesseract-dev libleptonica-dev pkg-config
-
-RUN apt-get install -y python3 python3-pip
+  apt-get install -y \
+    tesseract-ocr libtesseract-dev libleptonica-dev pkg-config \
+    python3 python3-pip python3-dev \
+    curl \
+    libsm6 libxrender1 libxext-dev
 
 # RUN apt-get -y clean
 # RUN rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install opencv-python tesserocr pyocr
-RUN apt-get install -y curl
-
-RUN apt-get install -y libsm6 libxrender1 libxext-dev
+RUN pip3 install opencv-python tesserocr
 
 RUN curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/jpn.traineddata https://github.com/tesseract-ocr/tessdata/raw/4.0.0/jpn.traineddata
 
