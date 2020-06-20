@@ -75,7 +75,7 @@ def index():
         if area < 5000:
           result.append({
             "frame": i,
-            "detected": "false",
+            "detected": False,
             })
           i += 1
           continue
@@ -150,7 +150,7 @@ def index():
 
         result.append({
           "frame": i,
-          "detected": "true",
+          "detected": True,
           "text": ocr_result,
           })
 
