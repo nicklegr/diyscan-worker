@@ -20,6 +20,7 @@ RUN pip3 install opencv-python tesserocr
 RUN curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/jpn.traineddata https://github.com/tesseract-ocr/tessdata/raw/4.0.0/jpn.traineddata
 
 RUN pip3 install pillow
+RUN pip3 install Flask
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -31,4 +32,4 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-EXPOSE 80
+EXPOSE 5000
