@@ -12,6 +12,8 @@ while(cap.isOpened()):
   if not ret:
     break
 
+  print(f"frame {i}:")
+
   # target = cv2.imread('/test/nicklegr_item_1st_row.png', cv2.IMREAD_COLOR)
   target = frame
   # target_debug = target.copy()
@@ -111,7 +113,7 @@ while(cap.isOpened()):
   api = PyTessBaseAPI(psm=PSM.AUTO, lang='jpn')
   api.SetImageFile('/tmp/ocr_input.png')
 
-  print(f"frame {i}: {api.GetUTF8Text().rstrip()}", flush=True)
+  print(f"{api.GetUTF8Text().rstrip()}", flush=True)
 
   # cv2.imwrite(f"/test/mov/frame_{i:03d}.png", frame)
   i += 1
