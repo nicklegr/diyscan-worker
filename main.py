@@ -5,6 +5,7 @@ import cv2 # 4.2.0
 import numpy as np
 import urllib.request
 import tempfile
+import json
 
 def cv2pil(image):
   if image.ndim == 2: # モノクロ
@@ -19,6 +20,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+  result = []
+
   url = "https://video.twimg.com/ext_tw_video/1273591398441205761/pu/vid/1280x720/K3rKcerF2mQPoEeQ.mp4"
 
   req = urllib.request.Request(url)
@@ -65,6 +68,10 @@ def index():
 
         # ふきだしが出ていないようなら以降の処理をスキップ
         if area < 5000:
+          result.append({
+            "frame": i,
+            "detected": "false",
+            })
           i += 1
           continue
 
@@ -133,11 +140,18 @@ def index():
         ocr_input = cv2pil(thres)
         ocr.SetImage(ocr_input)
 
-        print(f"{ocr.GetUTF8Text().rstrip()}", flush=True)
+        ocr_result = ocr.GetUTF8Text().rstrip()
+        print(ocr_result, flush=True)
+
+        result.append({
+          "frame": i,
+          "detected": "true",
+          "text": ocr_result,
+          })
 
         # cv2.imwrite(f"/test/mov/frame_{i:03d}.png", frame)
         i += 1
 
       cap.release()
 
-  return "finished!"
+  return json.dumps(result)
