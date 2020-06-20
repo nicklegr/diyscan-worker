@@ -14,7 +14,7 @@ while(cap.isOpened()):
 
   # target = cv2.imread('/test/nicklegr_item_1st_row.png', cv2.IMREAD_COLOR)
   target = frame
-  target_debug = target.copy()
+  # target_debug = target.copy()
   _, w, h = template.shape[::-1]
 
   # 指カーソルの位置を検出
@@ -24,7 +24,7 @@ while(cap.isOpened()):
   top_left = max_loc
   bottom_right = (top_left[0] + w, top_left[1] + h)
 
-  cv2.rectangle(target_debug, top_left, bottom_right, (255,0,0), 2)
+  # cv2.rectangle(target_debug, top_left, bottom_right, (255,0,0), 2)
 
   # 色でふきだしを抽出
   target_hsv = cv2.cvtColor(target, cv2.COLOR_BGR2HSV)
