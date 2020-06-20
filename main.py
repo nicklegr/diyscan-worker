@@ -1,6 +1,6 @@
 from tesserocr import PyTessBaseAPI, PSM
 from PIL import Image
-from flask import Flask
+from flask import Flask, abort, request
 import cv2 # 4.2.0
 import numpy as np
 import urllib.request
@@ -20,18 +20,23 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+  url = request.args.get('url', '')
+
   result = []
 
-  url = "https://video.twimg.com/ext_tw_video/1273591398441205761/pu/vid/1280x720/K3rKcerF2mQPoEeQ.mp4"
-
-  req = urllib.request.Request(url)
   try:
+    req = urllib.request.Request(url)
     with urllib.request.urlopen(req) as res:
       body = res.read()
   except urllib.error.HTTPError as err:
     print(err.code)
+    abort(404)
   except urllib.error.URLError as err:
     print(err.reason)
+    abort(404)
+  except ValueError as err:
+    print(f"invalid url: '{url}'")
+    abort(404)
 
   with tempfile.NamedTemporaryFile() as movie:
     movie.write(body)
