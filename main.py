@@ -1,6 +1,16 @@
 from tesserocr import PyTessBaseAPI, PSM
+from PIL import Image
 import cv2 # 4.2.0
 import numpy as np
+
+def cv2pil(image):
+  if image.ndim == 2: # モノクロ
+    buf = image
+  elif image.shape[2] == 3: # カラー
+    buf = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+  elif image.shape[2] == 4: # 透過
+    buf = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)
+  return Image.fromarray(buf)
 
 cap = cv2.VideoCapture('/mov/nicklegr_item.mp4')
 template = cv2.imread('/test/hand_icon.png', cv2.IMREAD_COLOR)
@@ -85,9 +95,6 @@ with PyTessBaseAPI(psm=PSM.AUTO, lang='jpn') as ocr:
     _, thres = cv2.threshold(blur,200,255,cv2.THRESH_BINARY)
     # cv2.imwrite("/test/thres.png", thres)
 
-    # OCR用にファイル出力
-    cv2.imwrite("/tmp/ocr_input.png", thres)
-
     # OCR
     # 短い名前
     # あみ
@@ -117,8 +124,8 @@ with PyTessBaseAPI(psm=PSM.AUTO, lang='jpn') as ocr:
     # じめんのたまごのから
     # じめんのたまごのふく
     # じめんのたまごのくつ
-
-    ocr.SetImageFile('/tmp/ocr_input.png')
+    ocr_input = cv2pil(thres)
+    ocr.SetImage(ocr_input)
 
     print(f"{ocr.GetUTF8Text().rstrip()}", flush=True)
 
