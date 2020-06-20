@@ -43,6 +43,13 @@ while(cap.isOpened()):
   # ふきだしの輪郭抽出
   contours, hierarchy = cv2.findContours(target_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # RETR_TREE
   biggest_contour = max(contours, key=lambda x:cv2.contourArea(x))
+  area = cv2.contourArea(biggest_contour)
+  print(f"biggest_contour: {area}")
+
+  # ふきだしが出ていないようなら以降の処理をスキップ
+  if area < 5000:
+    i += 1
+    continue
 
   # target_contours = cv2.drawContours(target, [biggest_contour], 0, (0,255,0), cv2.FILLED)
   # cv2.imwrite("/test/target_contours.png", target_contours)
