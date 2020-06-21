@@ -3,20 +3,13 @@ version: "2"
 services:
   main:
     build: .
-    ports:
-      - "5000:5000"
     environment:
       FLASK_APP: main.py
     restart: unless-stopped
     command: flask run --host=0.0.0.0
-    # command: python3 main.py
-    # command: tesseract -v
     networks:
       - default
       - diyscan
-    volumes:
-      - /c/work/acnh-recipe-ocr/test:/test
-      - /c/work/acnh-recipe-ocr/mov:/mov
 
 networks:
   diyscan:
