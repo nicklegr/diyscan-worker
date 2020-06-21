@@ -4,7 +4,7 @@ services:
   main:
     build: .
     ports:
-      - "80:5000"
+      - "5000:5000"
     environment:
       FLASK_APP: main.py
     restart: unless-stopped
@@ -13,11 +13,11 @@ services:
     # command: tesseract -v
     networks:
       - default
-      - nginx-proxy
+      - diyscan
     volumes:
       - /c/work/acnh-recipe-ocr/test:/test
       - /c/work/acnh-recipe-ocr/mov:/mov
 
 networks:
-  nginx-proxy:
+  diyscan:
     external: true
